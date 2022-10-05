@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.mapping.Array;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
@@ -20,6 +21,7 @@ import com.fundamentosplatzi.fundamentos.component.ComponentDependency;
 import com.fundamentosplatzi.fundamentos.entity.User;
 import com.fundamentosplatzi.fundamentos.pojo.UserPojo;
 import com.fundamentosplatzi.fundamentos.repository.UserRepository;
+import com.fundamentosplatzi.fundamentos.service.UserService;
 
 @SpringBootApplication
 public class FundamentosApplication implements CommandLineRunner{
@@ -34,6 +36,7 @@ public class FundamentosApplication implements CommandLineRunner{
 	private UserPojo userPojo;
 	
 	private UserRepository userRepository;
+	private UserService userService;
 	
 	//Iyesion de dependencia
 	@Autowired 
@@ -43,7 +46,8 @@ public class FundamentosApplication implements CommandLineRunner{
 				MyBeanWithDependency myBeanWithDependency,
 				MyBeanWithProperties myBeanWithProperties,
 				UserPojo userPojo,
-				UserRepository userRepository) {
+				UserRepository userRepository,
+				UserService userService) {
 		
 		this.componentDependency = componentDependency;
 		this.myBean = myBean;
@@ -51,6 +55,7 @@ public class FundamentosApplication implements CommandLineRunner{
 		this.myBeanWithProperties = myBeanWithProperties;
 		this.userPojo = userPojo;
 		this.userRepository = userRepository;
+		this.userService = userService;
 	}
 	
 	public static void main(String[] args) {
@@ -62,6 +67,7 @@ public class FundamentosApplication implements CommandLineRunner{
 		//runEjemplosAnteriores();
 		saveUserIdDataBase();
 		getInformationJpqlFromUser();
+		saveWithErrorTransactional();
 	}
 	
 	private void runEjemplosAnteriores() {
@@ -118,6 +124,25 @@ public class FundamentosApplication implements CommandLineRunner{
 		userRepository.getAllBirthDateAndEmail(LocalDate.of(2021, 2, 1), "carmen@hotmail.com")
 		.orElseThrow(() -> new RuntimeException("No se encontro usuario con NAME_PARAMETER"))
 		);
+		
+	}
+	
+	public void saveWithErrorTransactional() {
+		User test1 = new User("Test1","usertest1@hotmail.com",LocalDate.of(2021, 01, 01));
+		User test2 = new User("Test2","usertest2@hotmail.com",LocalDate.of(2021, 02, 01));
+		User test3 = new User("Test3","usertest3@hotmail.com",LocalDate.of(2020, 03, 01));
+		User test4 = new User("Test4","usertest4@hotmail.com",LocalDate.of(2020, 04, 01));
+		
+		List<User> users = Arrays.asList(test1, test2, test3, test4);
+		
+		try {
+			userService.saveTransactional(users);
+		}catch(Exception e) {
+			LOGGER.error("ERROR INSERT TEST ");
+		}		
+		
+		userService.getAllUsers().stream()
+		.forEach(user -> LOGGER.info("Usuario TEST : " + user));
 		
 	}
 

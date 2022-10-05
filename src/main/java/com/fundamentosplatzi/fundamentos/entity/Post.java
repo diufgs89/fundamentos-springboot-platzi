@@ -3,6 +3,7 @@ package com.fundamentosplatzi.fundamentos.entity;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -11,7 +12,7 @@ import javax.persistence.Table;
 @Table(name = "post")
 public class Post {
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id_post", nullable = false, unique = true)
 	private Long id;
 	@Column(name = "description", length = 255)
